@@ -28,7 +28,6 @@
 
 
 static char prompter[PROMPTER_MAX_SIZE] = {0};
-static char* commandline = NULL;
 enum show_prompt {DEFAULT_PROMPT, NONE, CONFIG};
 
 struct config_prompt {
@@ -73,6 +72,7 @@ char* prompt(struct config_prompt* conf)
   case NONE:
   default:
     prompter[0]='\0';
+    break;
   }
   return prompter;
 }
@@ -95,16 +95,21 @@ struct config_gets {
 
 char * commandline_gets (struct config_gets* conf)
 {
+  static char* commandline = NULL;
+ 
   _xfree((void**)&commandline);
 
   if(conf->input != NULL)
     {
       rl_instream = conf->input;
-      rl_outstream = conf->output;
     }
 
+  if(conf->output != NULL)
+    {
+      rl_outstream = conf->output;
+    }
+  
   commandline = readline (conf->prompter);
-
   if (commandline != NULL && commandline[0] != '\0')
     add_history (commandline);
 
@@ -123,7 +128,7 @@ void set_lastret(int ret)
 
 }
 
-int execute(char* path, char** argv)
+void execute(char* path, char** argv)
 {
   pid_t pid = fork();
   switch(pid)
@@ -187,7 +192,7 @@ int addinternalscmds(struct icmd* cmd){
   return 0;
 }
 
-int addcmd(char* cmd, int (*main)(int argc, char** argv))
+void addcmd(char* cmd, int (*main)(int argc, char** argv))
 {
   struct icmd* new_cmd = malloc(sizeof(struct icmd));
   memset(new_cmd->name,'\0',CMD_MAX_SIZE);
@@ -308,7 +313,7 @@ void interpreter(struct config_prompt* cnf_prompt, struct config_gets* cnf_gets)
     {
       char* cmdline = NULL;
       char* PS1 = prompt(cnf_prompt);
-      strncpy(cnf_gets->prompter,PS1,PROMPTER_MAX_SIZE) ;
+      strncpy(cnf_gets->prompter, PS1, PROMPTER_MAX_SIZE);
       cmdline = commandline_gets(cnf_gets);
       if(feof(cnf_gets->input))
         break;
@@ -356,6 +361,7 @@ int main(int argc, char** argv)
         cmdline = optarg;
         break;
       case 's':
+        type_run = SCRIPT;
         script = optarg;
         break;
       case 'h':
@@ -365,9 +371,10 @@ int main(int argc, char** argv)
         /*
           case 'd':
           break;
-         */
+        */
       case '?':
       default:
+        break;
       }
   }
 
@@ -407,14 +414,21 @@ int main(int argc, char** argv)
         cnf_gets.input = stdin;
       }
 
-
     
-    interpreter(&cnf_prompt, &cnf_gets);
-    if(fscript != NULL)
-      {
-        fclose(fscript);
-      }
-
+    switch(type_run) {
+    default:
+    case DEFAULT_RUN:
+    case SCRIPT:
+      interpreter(&cnf_prompt, &cnf_gets);
+      if(fscript != NULL)
+        {
+          fclose(fscript);
+        }
+      break;
+    case COMMAND:
+      parse(cmdline);
+      break;
+    }
     freecmd();
     return ret;
   }
