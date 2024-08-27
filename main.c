@@ -328,7 +328,7 @@ void print_help()
 {
   fprintf(stderr,"help : minish (run a shell)\n");
   fprintf(stderr,"help : minish -c CMD (run single command)\n");
-  fprintf(stderr,"help : minish file_script.minish (run a script)\n");
+  fprintf(stderr,"help : minish -s file_script.minish (run a script)\n");
 }
   
 int main(int argc, char** argv)
