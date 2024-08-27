@@ -65,7 +65,7 @@ char* prompt(struct config_prompt* conf)
       {
         SET_STRING_UNKNOW(cwd);
       }
-    (void)snprintf(prompter, PROMPTER_MAX_SIZE,"%s@%s>",login,cwd);
+    (void)snprintf(prompter, PROMPTER_MAX_SIZE,"%s@%s > ",login,cwd);
     break;
   case CONFIG:
     strncpy(prompter, conf->user_config, PROMPTER_MAX_SIZE);
@@ -90,7 +90,7 @@ void _xfree(void **mem)
 struct config_gets {
   FILE* input;
   FILE* output;
-  char* prompter;
+  char prompter[PROMPTER_MAX_SIZE];
 };
 
 char * commandline_gets (struct config_gets* conf)
@@ -308,7 +308,7 @@ void interpreter(struct config_prompt* cnf_prompt, struct config_gets* cnf_gets)
     {
       char* cmdline = NULL;
       char* PS1 = prompt(cnf_prompt);
-      cnf_gets->prompter = PS1;
+      strncpy(cnf_gets->prompter,PS1,PROMPTER_MAX_SIZE) ;
       cmdline = commandline_gets(cnf_gets);
       if(feof(cnf_gets->input))
         break;
