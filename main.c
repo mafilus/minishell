@@ -43,7 +43,7 @@ char* prompt(struct config_prompt* conf)
   char* errc;
 
   // cleanup the prompter
-  (void)memset(prompter,'\0', PROMPTER_MAX_SIZE);
+  (void)memset(prompter,'\0', PROMPTER_MAX_SIZE -1);
 
   
 
@@ -196,7 +196,7 @@ void addcmd(char* cmd, int (*main)(int argc, char** argv))
 {
   struct icmd* new_cmd = malloc(sizeof(struct icmd));
   memset(new_cmd->name,'\0',CMD_MAX_SIZE);
-  strncpy(new_cmd->name, cmd, CMD_MAX_SIZE);
+  strncpy(new_cmd->name, cmd, CMD_MAX_SIZE -1);
   new_cmd->main = main;
   addinternalscmds(new_cmd);
 }
@@ -313,7 +313,7 @@ void interpreter(struct config_prompt* cnf_prompt, struct config_gets* cnf_gets)
     {
       char* cmdline = NULL;
       char* PS1 = prompt(cnf_prompt);
-      strncpy(cnf_gets->prompter, PS1, PROMPTER_MAX_SIZE);
+      strncpy(cnf_gets->prompter, PS1, PROMPTER_MAX_SIZE -1);
       cmdline = commandline_gets(cnf_gets);
       if(feof(cnf_gets->input))
         break;
@@ -412,6 +412,7 @@ int main(int argc, char** argv)
     else
       {
         cnf_gets.input = stdin;
+        cnf_gets.output = stdout;
       }
 
     
