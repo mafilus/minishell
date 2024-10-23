@@ -180,7 +180,6 @@ int addinternalscmds(struct icmd* cmd){
     void* tmp = realloc(internalcmds->commands, (internalcmds->size + 1) * sizeof(struct icmd*));
     if(tmp == NULL)
       {
-        internalcmds->size--;
         return errno;
       }
 
