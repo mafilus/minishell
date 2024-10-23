@@ -242,6 +242,7 @@ int set_main(int argc, char** argv)
   if(setenv(argv[1],argv[2], 1))
     {
       perror("set");
+      return EXIT_FAILURE;
     }
   return EXIT_SUCCESS;
 }
